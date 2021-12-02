@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,104 +7,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        * {
+        *{
             box-sizing: border-box;
-            font-family: 微軟正黑體, Arial, Helvetica, sans-serif;
         }
-        body {
+        body{
             margin: 0;
-            padding: 0;
+            padding: 50px;
         }
-        .container {
-            width: 70%;
-            background-color: rgb(200, 201, 202);
-            margin: 0 auto;
-            display:flex;
-            justify-content: space-between;
+        .container{
+            display: flex;
             flex-wrap: wrap;
-            padding: 50px 50px;
+
         }
-        .card {
+        .card{
             width: 300px;
-            height: 500px;
-            background-color: rgb(236, 236, 230);
-            text-align: center;
-            margin: 8px;
-            line-height: 15px;
+            height: 450px;
+            border: 1px solid #000;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            font-size: 20px;
+            align-items: center;
+            margin-right: 10px;
+            margin-bottom: 10px;
         }
-        .card img {
-            width: 60%;
+        .img{
+            width: 100%;
             height: 60%;
+            background-color: aliceblue;
+            border-radius: 5px 5px 0 0;
         }
-        h1 {
-            padding: 0 0 10px 0;
+        .county-name{
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .temperature{
+            display: flex;
+        }
+        .min-t{
+            color:rgb(38, 153, 206);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- <div class="card">
-            <img src="./images/day-cloudy.svg" alt="">
-            <h1>name 城市名</h1>
-            <p>Wx 天氣現象</p>
-            <p>POP 降雨機率  MinT 最低溫度</p>
-        </div>
         <div class="card">
-            <img src="./images/day-partially-clear-with-rain.svg" alt="">
+            <div class="img"></div>
+            <div class="county-name">台北市</div>
+            <div class="wx">晴時多雲</div>
+            <div class="temperature">
+                <div class="max-t">36°C</div>｜
+                <div class="min-t">2°C</div>
+            </div>
+            <div class="ci">寒冷至舒適</div>
+            <div class="pop">降雨機率:10%</div>
         </div>
-        <div class="card">
-            <img src="./images/humid.svg" alt="">
-        </div>
-        <div class="card">
-            <img src="./images/refresh.svg" alt="">
-        </div>
-        <div class="card">
-            <img src="./images/refresh.svg" alt="">
-        </div>
-        <div class="card">
-            <img src="./images/refresh.svg" alt="">
-        </div> -->
+        
     </div>
     
     <script>
-        // const url = 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-4E8FBCC6-B2EA-427D-BE3F-822064905F65';
-        fetch('https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-4E8FBCC6-B2EA-427D-BE3F-822064905F65')
+        const url = 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-7EC08C0F-C5F2-478D-84D4-702FCF71511C';
+        const counties = ['臺北市', '新北市', '基隆市', '宜蘭縣', '桃園市', '新竹縣', '新竹市', '苗栗縣', '臺中市', '彰化縣', '南投縣', '雲林縣', '嘉義縣', '嘉義市', '臺南市', '高雄市', '屏東縣', '花蓮縣', '臺東縣', '連江縣', '金門縣', '澎湖縣'];
+        // get
+        fetch(url)
         .then(function (response) {
             return response.json();
         })
-        .then(function (weatherData) {
-            var Location = weatherData.records.location
-            Location.forEach(element => {
-                let Name = element.locationName
-                let Wx = element.weatherElement[0].time[0].parameter.parameterName
-                let POP = element.weatherElement[1].time[0].parameter.parameterName
-                let MinT = element.weatherElement[2].time[0].parameter.parameterName
-                let MaxT = element.weatherElement[4].time[0].parameter.parameterName
+        .then(function (data) {
+            // 取出所有縣市的資料
+            let locations = data['records']['location'];
+            // 建立一個存放整理後資料的物件
+            let weatherData = {};
+            // 利用forEach將各縣市資料取出
+            locations.forEach(function (location) {
+                // 以縣市名稱為key，進行初始化
+                weatherData[location['locationName']] = {};
+                // 取出所有天氣因子
+                let weatherElements = location['weatherElement'];
+                // 利用forEach將各因子取出
+                weatherElements.forEach(function (weatherElement) {
+                    // 將各因子資料存入物件中
+                    // weatherData[縣市名稱][因子名稱] = 資料
+                    weatherData[location['locationName']][weatherElement['elementName']] = weatherElement['time'][0]['parameter']['parameterName'];
+                });
+            });
+            console.log(weatherData);
 
-                let img_src
-                if (POP == 0) {
-                    img_src = "./img/day-clear.svg"                  
-                }else if (POP < 25) {
-                    img_src = "./images/day-cloudy.svg"                     
-                }else if (POP < 50) {
-                    img_src = "./images/day-partially-clear-with-rain.svg" 
-                }else {
-                    img_src = "./images/day-thunderstorm.svg"
-                }
-                let Card = document.querySelector(".container")
-                Card.innerHTML += `
-                    <div class="card">
-                        <img src="${img_src}" alt="">
-                        <h1>${Name}</h1>
-                        <p>${Wx}</p>
-                        <p>最低${MinT}&#8451 ~ 最高${MaxT}&#8451</p>
-                        <p>降雨機率 : ${POP}%</p>
+            const containerElement = document.querySelector('.container');
+            let cards = '';
+            counties.forEach(function (county) {
+                console.log(county);
+                cards += `
+                <div class="card">
+                    <div class="img"></div>
+                    <div class="county-name">${county}</div>
+                    <div class="wx">${weatherData[county]['Wx']}</div>
+                    <div class="temperature">
+                        <div class="max-t">${weatherData[county]['MaxT']}°C</div>｜
+                        <div class="min-t">${weatherData[county]['MinT']}°C</div>
                     </div>
-                    `
-            });            
-        //    console.log(weatherData);
+                    <div class="ci">${weatherData[county]['CI']}</div>
+                    <div class="pop">降雨機率:${weatherData[county]['PoP']}%</div>
+                </div>`;
+            });
+            containerElement.innerHTML = cards;
         });
+
+
     </script>
-    
 </body>
 </html>
