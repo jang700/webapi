@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 微軟正黑體, Arial, Helvetica, sans-serif;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 70%;
+            background-color: rgb(200, 201, 202);
+            margin: 0 auto;
+            display:flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 50px 50px;
+        }
+        .card {
+            width: 300px;
+            height: 500px;
+            background-color: rgb(236, 236, 230);
+            text-align: center;
+            margin: 8px;
+            line-height: 15px;
+        }
+        .card img {
+            width: 60%;
+            height: 60%;
+        }
+        h1 {
+            padding: 0 0 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- <div class="card">
+            <img src="./images/day-cloudy.svg" alt="">
+            <h1>name 城市名</h1>
+            <p>Wx 天氣現象</p>
+            <p>POP 降雨機率  MinT 最低溫度</p>
+        </div>
+        <div class="card">
+            <img src="./images/day-partially-clear-with-rain.svg" alt="">
+        </div>
+        <div class="card">
+            <img src="./images/humid.svg" alt="">
+        </div>
+        <div class="card">
+            <img src="./images/refresh.svg" alt="">
+        </div>
+        <div class="card">
+            <img src="./images/refresh.svg" alt="">
+        </div>
+        <div class="card">
+            <img src="./images/refresh.svg" alt="">
+        </div> -->
+    </div>
+    
+    <script>
+        // const url = 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-4E8FBCC6-B2EA-427D-BE3F-822064905F65';
+        fetch('https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-4E8FBCC6-B2EA-427D-BE3F-822064905F65')
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (weatherData) {
+            var Location = weatherData.records.location
+            Location.forEach(element => {
+                let Name = element.locationName
+                let Wx = element.weatherElement[0].time[0].parameter.parameterName
+                let POP = element.weatherElement[1].time[0].parameter.parameterName
+                let MinT = element.weatherElement[2].time[0].parameter.parameterName
+                let MaxT = element.weatherElement[4].time[0].parameter.parameterName
+
+                let img_src
+                if (POP == 0) {
+                    img_src = "./img/day-clear.svg"                  
+                }else if (POP < 25) {
+                    img_src = "./images/day-cloudy.svg"                     
+                }else if (POP < 50) {
+                    img_src = "./images/day-partially-clear-with-rain.svg" 
+                }else {
+                    img_src = "./images/day-thunderstorm.svg"
+                }
+                let Card = document.querySelector(".container")
+                Card.innerHTML += `
+                    <div class="card">
+                        <img src="${img_src}" alt="">
+                        <h1>${Name}</h1>
+                        <p>${Wx}</p>
+                        <p>最低${MinT}&#8451 ~ 最高${MaxT}&#8451</p>
+                        <p>降雨機率 : ${POP}%</p>
+                    </div>
+                    `
+            });            
+        //    console.log(weatherData);
+        });
+    </script>
+    
+</body>
+</html>
